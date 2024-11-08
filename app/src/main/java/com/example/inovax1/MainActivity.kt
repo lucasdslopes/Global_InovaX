@@ -1,18 +1,20 @@
 package com.example.inovax1
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.firebase.FirebaseApp
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
-    private var botaoTeste: Button? = null
-    private lateinit var bancoFb: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,27 +26,43 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Inicialização do Firebase
-        try {
-            FirebaseApp.initializeApp(this)
-            bancoFb = FirebaseFirestore.getInstance()
-        } catch (e: Exception) {
-            System.out.println("Erro ao inicializar o Firebase: ${e.message}")
+        auth = FirebaseAuth.getInstance()
+
+        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
+        val loginButton = findViewById<Button>(R.id.signInButton)
+        val registerText = findViewById<TextView>(R.id.registerText)
+        val forgotPasswordText = findViewById<TextView>(R.id.forgotPasswordText)
+
+        registerText.setOnClickListener {
+            val intent = Intent(this, RegistroActivity::class.java)
+            startActivity(intent)
         }
 
-        botaoTeste = findViewById(R.id.ID_testabutton)
-        botaoTeste?.setOnClickListener {
-            val user = hashMapOf(
-                "nome" to "Joao",
-                "idade" to 58,
-                "cidade" to "São Paulo"
-            )
-            bancoFb.collection("users").add(user)
-                .addOnSuccessListener { documentReference ->
-                    System.out.println("Usuario adicionado com ID: ${documentReference.id}")
-                }
-                .addOnFailureListener { e ->
-                    System.out.println("Erro ao adicionar usuario: $e")
+        forgotPasswordText.setOnClickListener {
+            val intent = Intent(this, SenhaNovaActivity::class.java)
+            startActivity(intent)
+        }
+
+        loginButton.setOnClickListener {
+            val email = emailEditText.text.toString().trim()
+            val senha = passwordEditText.text.toString().trim()
+
+            if (email.isEmpty() || senha.isEmpty()) {
+                Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            auth.signInWithEmailAndPassword(email, senha)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, HomeActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Erro ao realizar login: Verifique seu e-mail e senha ou faça o cadastro.", Toast.LENGTH_SHORT).show()
+                    }
                 }
         }
     }
