@@ -1,6 +1,8 @@
 package com.example.inovax1
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -29,10 +31,17 @@ class FavoritosActivity : AppCompatActivity() {
 
         favoritesRecyclerView = findViewById(R.id.favorites_recycler_view)
         favoritesRecyclerView.layoutManager = LinearLayoutManager(this)
-        favoritesAdapter = ResultsAdapter(favoritesList)
+        favoritesAdapter = ResultsAdapter(favoritesList, isFavoriteScreen = true)
         favoritesRecyclerView.adapter = favoritesAdapter
 
         loadFavorites()
+
+        // Configura o clique no ícone da casa para ir para a HomeActivity
+        val homeIcon = findViewById<ImageView>(R.id.home_icon)
+        homeIcon.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun loadFavorites() {
@@ -44,7 +53,6 @@ class FavoritosActivity : AppCompatActivity() {
                     val title = document.getString("title") ?: ""
                     val siteName = document.getString("siteName") ?: ""
                     val link = document.getString("link") ?: ""
-
                     favoritesList.add(SearchResult(title, siteName, link))
                 }
                 favoritesAdapter.notifyDataSetChanged()

@@ -51,7 +51,6 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        // Configurar o clique do ícone de favoritos para navegar para a FavoritosActivity
         favoritesIcon.setOnClickListener {
             val intent = Intent(this, FavoritosActivity::class.java)
             startActivity(intent)
