@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 
-data class SearchResult(val title: String, val siteName: String, val link: String)
+data class SearchResult(val title: String, val siteName: String, val link: String, val documentId: String? = null)
 
 class ResultsAdapter(
     private val results: MutableList<SearchResult>,
@@ -39,6 +39,7 @@ class ResultsAdapter(
 
         private val favoriteButton: Button? = itemView.findViewById(R.id.add_to_favorites_button)
         private val removeButton: Button? = itemView.findViewById(R.id.remove_from_favorites_button)
+        private val alterarButton: Button? = itemView.findViewById(R.id.alterar_favorites_button)
 
         fun bind(result: SearchResult) {
             titleText.text = result.title
@@ -57,6 +58,17 @@ class ResultsAdapter(
                 removeButton?.setOnClickListener {
                     removeFromFavorites(result, itemView.context, adapterPosition)
                 }
+
+                alterarButton?.setOnClickListener {
+                    val context = itemView.context
+                    if (result.documentId != null) {
+                        val intent = Intent(context, EdicaoActivity::class.java)
+                        intent.putExtra("documentId", result.documentId)
+                        context.startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "Erro: ID do documento não encontrado", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
                 favoriteButton?.setOnClickListener {
                     addToFavorites(result, itemView.context)
@@ -73,7 +85,13 @@ class ResultsAdapter(
             )
             db.collection("favorites")
                 .add(favorite)
-                .addOnSuccessListener {
+                .addOnSuccessListener { documentReference ->
+                    val updatedResult = result.copy(documentId = documentReference.id)
+                    val position = results.indexOf(result)
+                    if (position != -1) {
+                        results[position] = updatedResult
+                        notifyItemChanged(position)
+                    }
                     Toast.makeText(context, "Adicionado aos favoritos", Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener {
@@ -83,24 +101,17 @@ class ResultsAdapter(
 
         private fun removeFromFavorites(result: SearchResult, context: Context, position: Int) {
             val db = FirebaseFirestore.getInstance()
-            db.collection("favorites")
-                .whereEqualTo("link", result.link)
-                .get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        db.collection("favorites").document(document.id).delete()
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Removido dos favoritos", Toast.LENGTH_SHORT).show()
-
-                                // Remover o item da lista local e notificar o adaptador
-                                results.removeAt(position)
-                                notifyItemRemoved(position)
-                            }
+            result.documentId?.let { docId ->
+                db.collection("favorites").document(docId).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Removido dos favoritos", Toast.LENGTH_SHORT).show()
+                        results.removeAt(position)
+                        notifyItemRemoved(position)
                     }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Erro ao remover dos favoritos", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Erro ao remover dos favoritos", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 }

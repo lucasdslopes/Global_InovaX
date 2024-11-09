@@ -8,7 +8,6 @@
     android:background="#1C174A"
     tools:context=".MainActivity">
 
-    <!-- Texto de saudação -->
     <TextView
         android:id="@+id/greetingText"
         android:layout_width="wrap_content"
@@ -22,7 +21,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="80dp"/>
 
-    <!-- Campo de e-mail -->
     <EditText
         android:id="@+id/emailEditText"
         android:layout_width="0dp"
@@ -38,7 +36,6 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"/>
 
-    <!-- Campo de senha -->
     <EditText
         android:id="@+id/passwordEditText"
         android:layout_width="0dp"
@@ -55,7 +52,6 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"/>
 
-    <!-- Alterar a senha -->
     <TextView
         android:id="@+id/forgotPasswordText"
         android:layout_width="wrap_content"
@@ -68,7 +64,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"/>
 
-    <!-- Botão de Login -->
     <Button
         android:id="@+id/signInButton"
         android:layout_width="0dp"
@@ -83,7 +78,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Texto para registro -->
     <TextView
         android:id="@+id/registerText"
         android:layout_width="wrap_content"
